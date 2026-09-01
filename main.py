@@ -1,16 +1,24 @@
-# This is a sample Python script.
+import numpy as np
+import pandas as pd
+data=pd.read_csv('students.csv')
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+print(data)
+print('no of rows and col:', data.shape)
+print('1st 5 rows are:', data.head(5))
+print('last 3 rows are:', data.tail(3))
+data.info()
+print(data.isnull())
+print(data.isnull().sum())
+data['marks']=data['marks'].fillna(0)
+print(data.duplicated())
+data=data.drop_duplicates()
+print(data)
+print('average marks is:',data['marks'].mean())
+print('highest marks is:',data['marks'].max())
+print('lowest marks is:',data['marks'].min())
+print('average study_hours is:',data['study_hours'].mean())
+print('average attendance is:',data['attendance'].mean())
+print('students with marks>70')
+print(data[data['marks']>70])
+print('students with marks>85')
+print(data[data['marks']>85])
