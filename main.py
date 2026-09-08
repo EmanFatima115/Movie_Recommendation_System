@@ -1,24 +1,40 @@
-import numpy as np
 import pandas as pd
-data=pd.read_csv('students.csv')
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
 
-print(data)
-print('no of rows and col:', data.shape)
-print('1st 5 rows are:', data.head(5))
-print('last 3 rows are:', data.tail(3))
-data.info()
-print(data.isnull())
-print(data.isnull().sum())
-data['marks']=data['marks'].fillna(0)
-print(data.duplicated())
-data=data.drop_duplicates()
-print(data)
-print('average marks is:',data['marks'].mean())
-print('highest marks is:',data['marks'].max())
-print('lowest marks is:',data['marks'].min())
-print('average study_hours is:',data['study_hours'].mean())
-print('average attendance is:',data['attendance'].mean())
-print('students with marks>70')
-print(data[data['marks']>70])
-print('students with marks>85')
-print(data[data['marks']>85])
+df=pd.read_csv('houses.csv')
+print('First 5 rows:',df.head())
+print('No of rows:',df.shape[0])
+print('shape:',df.shape)
+print(df.describe())
+sns.scatterplot(x=df['Area'],y=df['Price'])
+plt.show()
+
+x=df[['Area','Bedrooms','Bathrooms']]
+y=df['Price']
+print('Features are:',x)
+print("Target is:",y)
+
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.3,random_state=10)
+print(x_train.shape)
+print(y_train.shape)
+print('x_test',x_test)
+print('y_test',y_test)
+model=LinearRegression()
+model.fit(x_train,y_train)
+predictions=model.predict(x_test)
+
+print('Actual Prices')
+print(y_test)
+print('Predicted prices')
+print(predictions)
+
+
+
+
+
+
+
+
