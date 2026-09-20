@@ -1,112 +1,103 @@
+from sklearn.datasets import load_iris
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error,r2_score
-import joblib
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix,ConfusionMatrixDisplay
 
-#Load a housing Dataset:
-df=pd.read_csv('houses.csv')
-print(df)
+# Load Iris Dataset:
+iris=load_iris()
+#Create DataFrame:
+df=pd.DataFrame(iris.data,columns=iris.feature_names)
 
-print('First 5 rows:',df.head())
+df['species']=iris.target
+# EDA
+print('First 5 rows are:')
+print(df.head())
 
-print('\nNumber of rows:',df.shape[0])
-print('Number of columns:',df.shape[1])
-print('Shape is:',df.shape)
+print(df.tail())
+print('Shape:')
+print(df.shape)
+print('Information:')
+print(df.info())
+print('Duplicate rows are:')
+print(df.duplicated().sum())
+print('Missing values:')
+print(df.isnull().sum())
+print('Statistical Summary')
+print(df.describe())
+print('Species distribution :')
+print(df['species'].value_counts())
+# Add Species Names:
+df['species_name']=df['species'].map({
+    0:'setosa',
+    1:'versicolor',
+    2:'virginica'
+})
+print(df.head())
+sns.pairplot(df,vars=iris.feature_names,
+hue='species_name')
+plt.show()
+x=df[iris.feature_names]
+y=df['species']
+#Train_Test Split:
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2,random_state=42)
 
+#Logistic Regression:
+model_lr=LogisticRegression()
+model_lr.fit(x_train,y_train)
+pred_lr=model_lr.predict(x_test)
+print('Logistic Regression Predictions:')
+print(pred_lr)
+# Accuracy(lr):
+accuracy_lr=accuracy_score(y_test,pred_lr)
+print('Logistic Regression Accuracy:')
+print(accuracy_lr)
+# Decision Tree:
+model_dt=DecisionTreeClassifier(random_state=42)
+model_dt.fit(x_train,y_train)
+pred_dt=model_dt.predict(x_test)
+print("Decision Tree Predictions: ")
+print(pred_dt)
 
-#Explore Dataset:
-print('\nData set information:',df.info())
-print('\nStatistical Summary is:',df.describe())
-
-#Data cleaning:
-print('\nMissing values:',df.isnull().sum())
-
-print('Duplicated rows :',df.duplicated().sum())
-print(df.drop_duplicates())
-
-
-print('Data after removing duplicated rows:',df.shape)
-
-#Data visualization:
-sns.scatterplot(x=df['Area'],y=df['Price'])
-plt.title('House price prediction')
-plt.xlabel('Area')
-plt.ylabel('Price')
+accuracy_dt=accuracy_score(y_test,pred_dt)
+print('Decision Tree Accuracy:')
+print(accuracy_dt)
+# Accuracy Comparison:
+print('Logistic Regression Accuracy:',accuracy_lr)
+print('Decision Tree Accuracy:',accuracy_dt)
+# Confusion Matrix:
+cm_lr=confusion_matrix(y_test,pred_lr)
+disp_lr=ConfusionMatrixDisplay(confusion_matrix=cm_lr,display_labels=iris.target_names)
+disp_lr.plot()
+plt.title('Logistic Regression Confusion Matrix')
 plt.show()
 
+# Misclassification Interpretation:
+print('Misclassification Interpretation:')
+for i in range(len(iris.target_names)):
+    for j in range(len(iris.target_names)):
+        if i!=j and cm_lr[i][j]>0:
+            print(
+                iris.target_names[i],
+                'was predicted as:',
+                iris.target_names[j],
+                ':',
+                cm_lr[i][j]
+            )
 
-
-#FEATURES AND TARGET:
-x=df[['Area','Bedrooms','Bathrooms']]
-y=df['Price']
-print('\nFeatures',x)
-print('Target',y)
-
-#Train/Test Split:
-
-x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.3,random_state=10)
-print('\nTraining features shape:', x_train.shape)
-print('Testing features shape:',x_test.shape)
-print('Traing target shape:',y_train.shape)
-print('Testing target shape:',y_test.shape)
-
-#Linear Regression Model:
-
-model=LinearRegression()
-model.fit(x_train,y_train)
-print('\nModel trained Successfully')
-
-#Predictions:
-
-predictions=model.predict(x_test)
-print('\nActual Prices')
-print(y_test.values)
-print('\nPredicted Prices')
-print(predictions)
-
-#Model Evaluation:
-
-rmse=mean_squared_error(y_test,predictions)**0.5
-r2=r2_score(y_test,predictions)
-print('RMSE:',rmse)
-print('R2_Score',r2)
-
-#Model Coefficients:
-print('Area:',model.coef_[0])
-print('Bedrooms:',model.coef_[1])
-print('Bathrooms:',model.coef_[2])
-print('Model Coefficients:')
-print('Intercept:',model.intercept_)
-
-
-#Save Model:
-
-joblib.dump(model,'house_price_model.pkl')
-
-# Example:
-new_house=pd.DataFrame({
-    "Area": [2000],
-    "Bedrooms": [4],
-    "Bathrooms": [3]
-})
-predicted_price=model.predict(new_house)
-print('\nExample Predictions:')
-print('Predicted Price:',predicted_price[0])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# New Flower Prediction
+sepal_length=float(input('Enter sepal length:'))
+sepal_width=float(input('Enter sepal width:'))
+petal_length=float(input('Enter petal length:'))
+petal_width=float(input('Enter petal width:'))
+new_flower=pd.DataFrame(
+    [[sepal_length,sepal_width, petal_length, petal_width]],
+    columns=iris.feature_names
+)
+predictions=model_lr.predict(new_flower)
+print("Predicted Species:")
+print(iris.target_names[predictions[0]])
