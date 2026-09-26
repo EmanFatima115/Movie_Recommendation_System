@@ -1,103 +1,89 @@
-from sklearn.datasets import load_iris
+# TASK 1: Credit Scoring Model:
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score,roc_auc_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import confusion_matrix,ConfusionMatrixDisplay
 
-# Load Iris Dataset:
-iris=load_iris()
-#Create DataFrame:
-df=pd.DataFrame(iris.data,columns=iris.feature_names)
-
-df['species']=iris.target
-# EDA
-print('First 5 rows are:')
+# EDA:
+df=pd.read_csv('credit_data.csv')
 print(df.head())
-
-print(df.tail())
-print('Shape:')
-print(df.shape)
-print('Information:')
-print(df.info())
-print('Duplicate rows are:')
-print(df.duplicated().sum())
-print('Missing values:')
-print(df.isnull().sum())
-print('Statistical Summary')
 print(df.describe())
-print('Species distribution :')
-print(df['species'].value_counts())
-# Add Species Names:
-df['species_name']=df['species'].map({
-    0:'setosa',
-    1:'versicolor',
-    2:'virginica'
-})
+print(df.shape)
+print(df.isnull().sum())
+print(df.duplicated().sum())
+df.info()
+df['Debt to Income']=df['Debt']/df['Income']
 print(df.head())
-sns.pairplot(df,vars=iris.feature_names,
-hue='species_name')
-plt.show()
-x=df[iris.feature_names]
-y=df['species']
-#Train_Test Split:
-x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2,random_state=42)
+# Features:
+x=df[['Age','Income','Debt','PaymentHistory','CreditScore','Debt to Income']]
+y=df['Creditworthy']
+# Train_test_split:
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.3,random_state=42,stratify=y)
+scaler=StandardScaler()
+x_train_scaled=scaler.fit_transform(x_train)
+x_test_scaled=scaler.transform(x_test)
+# Logistic Regression Model:
+model_lg=LogisticRegression()
+model_lg.fit(x_train_scaled,y_train)
+pred_lg=model_lg.predict(x_test_scaled)
+print('Logistic  Regression Predictions:',pred_lg)
+# Decision Tree Model:
+model_tree=DecisionTreeClassifier(random_state=42)
+model_tree.fit(x_train,y_train)
+pred_tree=model_tree.predict(x_test)
+print('Decision Tree Predictions:',pred_tree)
+# Random Forest Model:
+model_randomforest=RandomForestClassifier(n_estimators=10,random_state=42)
+model_randomforest.fit(x_train,y_train)
+pred_randomforest=model_randomforest.predict(x_test)
+print('Random Forest Predictions:',pred_randomforest)
+# METRICS:
+# Accuracy:
+accuracy_lg=accuracy_score(y_test,pred_lg)
+print('Logistic Regression Accuracy:',accuracy_lg)
+accuracy_tree=accuracy_score(y_test,pred_tree)
+print('Decision Tree Accuracy:',accuracy_tree)
+accuracy_randomforest=accuracy_score(y_test,pred_randomforest)
+print('Random Forest Accuracy:',accuracy_randomforest)
+# Precision:
+precision_lg=precision_score(y_test,pred_lg)
+print('Logistic Regression Precision:',precision_lg)
+precision_tree=precision_score(y_test,pred_tree)
+print('Decision Tree Precision:',precision_tree)
+precision_randomforest=precision_score(y_test,pred_randomforest)
+print('Random Forest Precision:',precision_randomforest)
+# Recall:
+recall_lg=recall_score(y_test,pred_lg)
+print('Logistic Regression Recall_Score:',recall_lg)
+recall_tree=recall_score(y_test,pred_tree)
+print('Decision Tree Recall_Score :',recall_tree)
+recall_randomforest=recall_score(y_test,pred_randomforest)
+print('Random Forest Recall_Score:',recall_randomforest)
+# F1_score:
+f1_score_lg=f1_score(y_test,pred_lg)
+print('Logistic Regression F1_score:',f1_score_lg)
+f1_score_tree=f1_score(y_test,pred_tree)
+print('Decision Tree F1_score :',f1_score_tree)
+f1_score_randomforest=f1_score(y_test,pred_randomforest)
+print('Random Forest F1_score:',f1_score_randomforest)
+# Roc_Auc_Score:
+prob_lg=model_lg.predict_proba(x_test_scaled)[:,1]
+roc_auc_score_lg=roc_auc_score(y_test,prob_lg)
+print('Logistic Regression Roc_Auc:',roc_auc_score_lg)
+prob_tree=model_tree.predict_proba(x_test)[:,1]
+roc_auc_score_tree=roc_auc_score(y_test,prob_tree)
+print('Decision Tree Roc_Auc:',roc_auc_score_tree)
+prob_randomforest=model_randomforest.predict_proba(x_test)[:,1]
+roc_auc_score_randomforest=roc_auc_score(y_test,prob_randomforest)
+print('Random Forest Roc_Auc:',roc_auc_score_randomforest)
 
-#Logistic Regression:
-model_lr=LogisticRegression()
-model_lr.fit(x_train,y_train)
-pred_lr=model_lr.predict(x_test)
-print('Logistic Regression Predictions:')
-print(pred_lr)
-# Accuracy(lr):
-accuracy_lr=accuracy_score(y_test,pred_lr)
-print('Logistic Regression Accuracy:')
-print(accuracy_lr)
-# Decision Tree:
-model_dt=DecisionTreeClassifier(random_state=42)
-model_dt.fit(x_train,y_train)
-pred_dt=model_dt.predict(x_test)
-print("Decision Tree Predictions: ")
-print(pred_dt)
 
-accuracy_dt=accuracy_score(y_test,pred_dt)
-print('Decision Tree Accuracy:')
-print(accuracy_dt)
-# Accuracy Comparison:
-print('Logistic Regression Accuracy:',accuracy_lr)
-print('Decision Tree Accuracy:',accuracy_dt)
-# Confusion Matrix:
-cm_lr=confusion_matrix(y_test,pred_lr)
-disp_lr=ConfusionMatrixDisplay(confusion_matrix=cm_lr,display_labels=iris.target_names)
-disp_lr.plot()
-plt.title('Logistic Regression Confusion Matrix')
-plt.show()
 
-# Misclassification Interpretation:
-print('Misclassification Interpretation:')
-for i in range(len(iris.target_names)):
-    for j in range(len(iris.target_names)):
-        if i!=j and cm_lr[i][j]>0:
-            print(
-                iris.target_names[i],
-                'was predicted as:',
-                iris.target_names[j],
-                ':',
-                cm_lr[i][j]
-            )
 
-# New Flower Prediction
-sepal_length=float(input('Enter sepal length:'))
-sepal_width=float(input('Enter sepal width:'))
-petal_length=float(input('Enter petal length:'))
-petal_width=float(input('Enter petal width:'))
-new_flower=pd.DataFrame(
-    [[sepal_length,sepal_width, petal_length, petal_width]],
-    columns=iris.feature_names
-)
-predictions=model_lr.predict(new_flower)
-print("Predicted Species:")
-print(iris.target_names[predictions[0]])
+
+
+
