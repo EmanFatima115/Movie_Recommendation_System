@@ -1,0 +1,55 @@
+Customer Segmentation – Segment Report
+
+The customer segmentation model divided the customers into 6 segments using K-Means clustering. The value of K was selected as 6 using the Elbow Method. The segments were created using Age, Annual Income, and Spending Score.
+
+Segment 0 – Older, Medium-Spending Customers
+
+Average Age: 56.3 years
+Average Annual Income: 54.3k
+Average Spending Score: 49.1
+
+These customers are older, have medium income, and have a medium spending level. Marketing can focus on loyalty programs, personalized offers, and suitable products.
+
+Segment 1 – High-Income, High-Spending Customers
+
+Average Age: 32.7 years
+Average Annual Income: 86.5k
+Average Spending Score: 82.1
+
+These customers have high income and high spending behavior. Marketing can focus on premium products, VIP memberships, exclusive offers, and reward programs.
+
+Segment 2 – Young, High-Spending Customers
+
+Average Age: 25.6 years
+Average Annual Income: 26.5k
+Average Spending Score: 76.2
+
+These customers are young and have a high spending score despite having lower average income. Marketing can focus on social media campaigns, trendy products, discounts, and special promotions.
+
+Segment 3 – Young, Medium-Spending Customers
+
+Average Age: 26.1 years
+Average Annual Income: 59.4k
+Average Spending Score: 44.5
+
+These customers are young, have medium income, and have a medium spending level. Marketing can use regular promotions, product recommendations, and moderate discounts.
+
+Segment 4 – High-Income, Low-Spending Customers
+
+Average Age: 44.0 years
+Average Annual Income: 90.1k
+Average Spending Score: 17.9
+
+These customers have high income but a low spending score. Marketing can focus on personalized recommendations, premium product promotions, and targeted incentives.
+
+Segment 5 – Older, Low-Income, Low-Spending Customers
+
+Average Age: 45.5 years
+Average Annual Income: 26.3k
+Average Spending Score: 19.4
+
+These customers have lower income and low spending behavior. Marketing can focus on affordable products, discounts, value deals, and budget-friendly bundles.
+
+Conclusion
+
+The K-Means model identified six customer segments with different age, income, and spending patterns. These segments can help businesses create targeted marketing strategies for different types of customers.
