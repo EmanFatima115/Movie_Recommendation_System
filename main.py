@@ -2,13 +2,13 @@ import pandas as pd
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+# EDA:
 movies=pd.read_csv('movies.csv')
 print(movies.shape)
 print(movies.head())
 print(movies.columns)
 print(movies.isnull().sum())
-
+# Data Cleaning:
 movies=movies.dropna(subset=['title','genres'])
 print(movies.shape)
 print(movies.duplicated().sum())
@@ -18,12 +18,14 @@ movies["title"] = movies["title"].str.replace(r"\s*\(\d{4}\)$", "", regex=True)
 print(movies[['title','genres']].head())
 movies['content']=movies['title'] +' '+ movies['genres']
 print(movies[['title','genres','content']].head())
+# Text Features:
 tfidf=TfidfVectorizer()
 tfidf_matrix=tfidf.fit_transform(movies['content'])
 print(tfidf_matrix.shape)
 similarity=cosine_similarity(tfidf_matrix)
 print(similarity.shape)
 print(similarity[0][:10])
+# Recommendation And Cosine similarity:
 def recommend_movies(movies_title):
 
 
@@ -38,6 +40,7 @@ def recommend_movies(movies_title):
 recommend_movies('Jumanji')
 recommend_movies('Toy Story')
 recommend_movies('Lion King, The')
+# Evaluation:
 # Qualitative Evaluation
 # The recommendations were checked using sample movie queries.
 # The system produced relevant movies for similar titles and genres.
