@@ -1,48 +1,43 @@
-import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-# Load Data:
-df=pd.read_csv('Mall_Customers.csv')
-print(df.head())
-print(df.shape)
-# Cleaning Data:
-print(df.isnull().sum())
-print(df.duplicated().sum())
-print(df.columns)
-# Features:
-x=df[['Age','Annual Income (k$)','Spending Score (1-100)']]
-# Scaling:
-scaler=StandardScaler()
-x_scaled=scaler.fit_transform(x)
-print(x_scaled[:5])
-wcss=[]
-# K_Model:
-for i in range(1,11):
-    model=KMeans(n_clusters=i,random_state=42,n_init='auto')
-    model.fit(x_scaled)
-    wcss.append(model.inertia_)
 
-plt.plot(range(1,11),wcss,marker='o')
-plt.xlabel('number of clusters')
-plt.ylabel('Wcss')
-plt.title('elbow method')
-plt.show()
-# Clustering:
-model=KMeans(n_clusters=6,random_state=42,n_init='auto')
-model.fit(x_scaled)
-cluster_labels=model.labels_
-print(cluster_labels)
-df['cluster']=cluster_labels
-print(df.head())
-plt.scatter(df['Annual Income (k$)'],df['Spending Score (1-100)'],c=df['cluster'])
-plt.xlabel('Annual Income (k$)')
-plt.ylabel('Spending Score (1-100)')
-plt.show()
-# Cluster profiling:
-cluster_profile=df.groupby('cluster')[[
-    'Age','Annual Income (k$)','Spending Score (1-100)'
-]].mean()
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
-df.to_csv(('customer_segments.csv'),index=False)
-print(cluster_profile)
+movies=pd.read_csv('movies.csv')
+print(movies.shape)
+print(movies.head())
+print(movies.columns)
+print(movies.isnull().sum())
+
+movies=movies.dropna(subset=['title','genres'])
+print(movies.shape)
+print(movies.duplicated().sum())
+movies['genres']=movies['genres'].str.replace('|',' ',regex=False)
+print(movies.head())
+movies["title"] = movies["title"].str.replace(r"\s*\(\d{4}\)$", "", regex=True)
+print(movies[['title','genres']].head())
+movies['content']=movies['title'] +' '+ movies['genres']
+print(movies[['title','genres','content']].head())
+tfidf=TfidfVectorizer()
+tfidf_matrix=tfidf.fit_transform(movies['content'])
+print(tfidf_matrix.shape)
+similarity=cosine_similarity(tfidf_matrix)
+print(similarity.shape)
+print(similarity[0][:10])
+def recommend_movies(movies_title):
+
+
+    movie_index=movies[movies['title']==movies_title].index[0]
+    print('movie index', movie_index)
+    similarity_scores = list(enumerate(similarity[movie_index]))
+    similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+    for index, score in similarity_scores[1:6]:
+        print(movies.iloc[index]['title'], score)
+
+
+recommend_movies('Jumanji')
+recommend_movies('Toy Story')
+recommend_movies('Lion King, The')
+# Qualitative Evaluation
+# The recommendations were checked using sample movie queries.
+# The system produced relevant movies for similar titles and genres.
